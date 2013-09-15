@@ -97,13 +97,22 @@ class EcwidCatalog
             array("alias" => "pf", "action" => "profile")
         );
 
+        if (!empty($id)) {
+          $params[] = array("alias" => "category", "action" => "category", "params" => array("id" => $id));
+        }
+
         $batch_result = $this->ecwid_api->get_batch_request($params);
 
         $categories = $batch_result["c"];
         $products   = $batch_result["p"];
         $profile    = $batch_result["pf"];
+        $category   = $batch_result["category"];
 
         $return = '';
+        if (!empty($category)) {
+          $return .= '<div class="ecwid_catalog_category_name">' . $category["name"] . '</div>';
+          $return .= '<div class="ecwid_catalog_category_description">' . $category["description"] . '</div>';
+        }
 
         if (is_array($categories)) 
         {
