@@ -80,9 +80,11 @@ class EcwidCatalog
 		$description = $product['description'];
 
 		$description = strip_tags($description);
-        $description = trim($description, " \t\xA0\n\r");// Space, tab, non-breaking space, newline, carriage return
-        $description = mb_substr($description, 0, 160, 'utf-8');
-        $description = htmlentities($description);
+    $description = html_entity_decode($description, ENT_NOQUOTES, 'UTF-8');
+    $description = preg_replace("![\\s]+!", " ", $description);
+    $description = trim($description, " \t\xA0\n\r"); // Space, tab, non-breaking space, newline, carriage return
+    $description = mb_substr($description, 0, 160);
+    $description = htmlentities($description);
 
 		return $description;
 
