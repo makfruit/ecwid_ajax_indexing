@@ -84,7 +84,7 @@ class EcwidCatalog
     $description = preg_replace("![\\s]+!", " ", $description);
     $description = trim($description, " \t\xA0\n\r"); // Space, tab, non-breaking space, newline, carriage return
     $description = mb_substr($description, 0, 160);
-    $description = htmlentities($description);
+    $description = htmlspecialchars($description, ENT_COMPAT | ENT_HTML401, 'UTF-8');
 
 		return $description;
 
