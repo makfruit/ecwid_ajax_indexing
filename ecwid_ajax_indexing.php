@@ -74,20 +74,9 @@ class EcwidCatalog
 	}
 
 	function get_product_description($id) {
-
 		$product = $this->ecwid_api->get_product($id);
-
 		$description = $product['description'];
-
-		$description = strip_tags($description);
-    $description = html_entity_decode($description, ENT_NOQUOTES, 'UTF-8');
-    $description = preg_replace("![\\s]+!", " ", $description);
-    $description = trim($description, " \t\xA0\n\r"); // Space, tab, non-breaking space, newline, carriage return
-    $description = mb_substr($description, 0, 160);
-    $description = htmlentities($description);
-
 		return $description;
-
 	}
 
     function get_category($id)
@@ -170,12 +159,6 @@ class EcwidCatalog
 
 			}
 		}
-		$description = $product['description'];
-
-        $description = strip_tags($description);
-        $description = html_entity_decode($description);
-        $description = trim($description, " \t\xA0\n\r");// Space, tab, non-breaking space, newline, carriage return
-        $description = mb_substr($description, 0, 160, 'utf-8');
 
 		return $description;
 
@@ -1452,44 +1435,59 @@ function ecwid_page_url () {
 	$url = $parts['path'] . '?' . $queryString;
 
 	return $port . $_SERVER['HTTP_HOST'] . $url;
+}
 
+function ecwid_prepare_meta_description($string) {
+  if (empty($string)) {
+    return "";
+  }
+
+  $description = strip_tags($string);
+  $description = html_entity_decode($description, ENT_NOQUOTES, 'UTF-8');
+  $whitespaces = " \t\xA0\n\r";// Space, tab, non-breaking space, newline, carriage return
+  $description = trim($description, $whitespaces);
+  $description = preg_replace("![$whitespaces]+!", " ", $description);
+  $description = mb_substr($description, 0, 160);
+
+  return $description;
 }
 
 $ecwid_html_index = $ecwid_title = '';
 
 if (isset($_GET['_escaped_fragment_'])) {
 
-    $params = ecwid_parse_escaped_fragment($_GET['_escaped_fragment_']);
+  $params = ecwid_parse_escaped_fragment($_GET['_escaped_fragment_']);
 
-    $catalog = new EcwidCatalog($ecwid_store_id, ecwid_page_url());
+  $catalog = new EcwidCatalog($ecwid_store_id, ecwid_page_url());
 
-    if (isset($params['mode']) && !empty($params['mode'])) {
+  if (isset($params['mode']) && !empty($params['mode'])) {
 
-        if ($params['mode'] == 'product') {
+    if ($params['mode'] == 'product') {
 
-	        $ecwid_html_index = $catalog->get_product($params['id']);
-	        $ecwid_html_index .= '<script type="text/javascript"> if (!document.location.hash) document.location.hash = "!/~/product/id='. intval($params['id']) .'";</script>';
+     $ecwid_html_index = $catalog->get_product($params['id']);
+     $ecwid_html_index .= '<script type="text/javascript"> if (!document.location.hash) document.location.hash = "!/~/product/id='. intval($params['id']) .'";</script>';
 
-			$ecwid_title = $catalog->get_product_name($params['id']);
+     $ecwid_title = $catalog->get_product_name($params['id']);
 
-			$ecwid_description = $catalog->get_product_description($params['id']);
+     $ecwid_description = $catalog->get_product_description($params['id']);
 
-        } elseif ($params['mode'] == 'category') {
+   } elseif ($params['mode'] == 'category') {
 
-	        $ecwid_html_index = $catalog->get_category($params['id']);
-            $ecwid_default_category_str = ',"defaultCategoryId=' . $params['id'] . '"';
+     $ecwid_html_index = $catalog->get_category($params['id']);
+     $ecwid_default_category_str = ',"defaultCategoryId=' . $params['id'] . '"';
 
-			$ecwid_title = $catalog->get_category_name($params['id']);
+     $ecwid_title = $catalog->get_category_name($params['id']);
 
-			$ecwid_description = $catalog->get_category_description($params['id']);
+     $ecwid_description = $catalog->get_category_description($params['id']);
 
-        }
+   }
+   $ecwid_description = ecwid_prepare_meta_description($ecwid_description);
 
-    } else {
+ } else {
 
-        $ecwid_html_index = $catalog->get_category(0);
+  $ecwid_html_index = $catalog->get_category(0);
 
-    }
+}
 
 }
 
