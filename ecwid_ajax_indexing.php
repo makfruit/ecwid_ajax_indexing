@@ -1256,11 +1256,15 @@ function ecwid_parse_escaped_fragment($escaped_fragment) {
 }
 
 function ecwid_page_url () {
+  # http://stackoverflow.com/a/2886224
+  $protocol = 'http';
 
-  $port = ($_SERVER['SERVER_PORT'] ==  80 ?  "http://" : "https://");
+  if (!empty($_SERVER['HTTPS']) && (
+    $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443)) {
+    $protocol = 'https';
+  }
 
   $parts = parse_url($_SERVER['REQUEST_URI']);
-
   $queryParams = array();
   parse_str($parts['query'], $queryParams);
   unset($queryParams['_escaped_fragment_']);
@@ -1268,7 +1272,7 @@ function ecwid_page_url () {
   $queryString = http_build_query($queryParams);
   $url = $parts['path'] . '?' . $queryString;
 
-  return $port . $_SERVER['HTTP_HOST'] . $url;
+  return $protocol . '://' . $_SERVER['HTTP_HOST'] . $url;
 }
 
 function ecwid_prepare_meta_description($description) {
