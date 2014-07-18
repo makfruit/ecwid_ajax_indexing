@@ -1278,8 +1278,7 @@ function ecwid_prepare_meta_description($description) {
 
   $description = strip_tags($description);
   $description = html_entity_decode($description, ENT_NOQUOTES, 'UTF-8');
-  $description = preg_replace("![\\s]+!", " ", $description);
-  $description = trim($description, " \t\xA0\n\r"); // Space, tab, non-breaking space, newline, carriage return  
+  $description = preg_replace("/\\s+/u", " ", $description);
   $description = mb_substr($description, 0, 160);
   $description = htmlspecialchars($description, ENT_COMPAT | ENT_HTML401, 'UTF-8');
 
